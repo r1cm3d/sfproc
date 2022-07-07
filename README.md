@@ -1,8 +1,6 @@
 # sfproc
 [![license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/r1cm3d/gk-yaml/blob/master/LICENSE)
 
-**TL;DR:**
-
 ## Prerequisites
 [![rust](https://img.shields.io/badge/rust-2021-orange?style=flat-square)](https://github.com/rust-lang/rust)
 ``` console
@@ -10,7 +8,6 @@ brew install rustup-init && rustup-init
 ```
 
 ## Table of Contents
-* [TL;DR](#ppsch)
 * [Prerequisites](#prerequisites)
 * [About](#about-the-project)
 * [Building](#building)
