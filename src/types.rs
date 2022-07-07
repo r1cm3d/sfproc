@@ -1,8 +1,11 @@
 use clap::Parser;
+use std::fmt;
 
-pub trait Writer {
-    fn write(&self, file_name: &str, content: &str) -> Option<Box<dyn std::error::Error>>;
-}
+pub const FILE_SUFFIX: &str = "rep";
+pub const EXTENSION_PATTERN: &str = r"\..{3}$";
+pub const TENANT_PATTERN: &str = r"(?i)^tn-[^/]+";
+pub const STREAMABLE_PATTERN: &str = r"(?i).*(baseii|t112|t120|t470|t464).*";
+pub const DIR_PATTERN: &str = r".*/&";
 
 #[derive(Debug, Parser)]
 #[clap(name = "sfproc - settlement files processor")]
@@ -17,11 +20,76 @@ pub struct Cli {
     /// S3 bucket to look up.
     pub bucket: String,
 
-    #[clap(short, long, required = true)]
-    /// The base file pattern to look up into storage repository.
-    pub pattern: String,
+    #[clap(short, long)]
+    /// The prefix to be applied in the look up in order to avoid unnecessary requests.
+    pub prefix: String,
+
+    #[clap(short, long)]
+    /// The base regex pattern to look up into storage repository.
+    pub regex: Option<String>,
 
     #[clap(short, long)]
     /// The ARN of the KMS key that must be used to encrypt the sensible files.
-    pub kms_key: String,
+    pub kms_key: Option<String>,
+
+    #[clap(short, long, action)]
+    /// Enable DEBUG log mode.
+    pub verbose: bool,
+}
+
+pub enum Metadata {
+    SourceFile(String),
+    BackupFile(String),
+    Tenant(String),
+    Streamable(String),
+    ParentCid(String),
+    Endpoint(String),
+}
+
+impl Metadata {
+    pub fn name(&self) -> String {
+        match *self {
+            Metadata::SourceFile(_) => String::from("SourceFile"),
+            Metadata::BackupFile(_) => String::from("BackupFile"),
+            Metadata::Tenant(_) => String::from("OrgId"),
+            Metadata::Endpoint(_) => String::from("Endpoint"),
+            Metadata::Streamable(_) => String::from("Streamable"),
+            Metadata::ParentCid(_) => String::from("ParentCid"),
+        }
+    }
+
+    pub fn value(&self) -> String {
+        match self {
+            Metadata::SourceFile(v) => v.to_string(),
+            Metadata::BackupFile(v) => v.to_string(),
+            Metadata::Tenant(v) => v.to_string(),
+            Metadata::Endpoint(v) => v.to_string(),
+            Metadata::Streamable(v) => v.to_string(),
+            Metadata::ParentCid(v) => v.to_string(),
+        }
+    }
+}
+
+impl fmt::Display for Metadata {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}: ({})", self.name(), self.value())
+    }
+}
+
+pub struct SettlementFile {
+    pub bucket: String,
+    pub source_file: Metadata,
+    pub backup_file: Metadata,
+    pub tenant: Metadata,
+    pub streamable: Metadata,
+    pub endpoint: Metadata,
+    pub parent_cid: Metadata,
+}
+
+
+impl fmt::Display for SettlementFile {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}; Bucket: ({}); {}; {}; {}; {}; {}", self.parent_cid, self.bucket, self.source_file,
+               self.backup_file, self.tenant, self.streamable, self.endpoint)
+    }
 }

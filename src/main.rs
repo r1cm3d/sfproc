@@ -1,7 +1,8 @@
+extern crate core;
+
 use log::{error, LevelFilter};
 use simple_logger::SimpleLogger;
 use std::process::exit;
-use infra::writer::Fs;
 use handler::Handler;
 use types::Cli;
 use clap::Parser;
@@ -10,24 +11,26 @@ use aws_sdk_s3::Client;
 use std::error::Error;
 
 mod handler;
-mod infra;
 mod types;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    let args = Cli::parse();
+
+    let log_level = match args.verbose {
+        true => LevelFilter::Debug,
+        false => LevelFilter::Info
+    };
+
     SimpleLogger::new()
-        .with_level(LevelFilter::Info)
+        .with_level(log_level)
         .init()
         .unwrap();
 
-    // FIXME: Unstable
     let region_provider = RegionProviderChain::default_provider().or_else("sa-east-1");
     let config = aws_config::from_env().region(region_provider).load().await;
     let client = Client::new(&config);
-
-    let args = Cli::parse();
-    let fs_writer = Box::new(Fs {});
-    let handler = Handler::new(fs_writer, client);
+    let handler = Handler::new(client);
 
     match handler.handle(args).await {
         Ok(..) => exit(exitcode::OK),
