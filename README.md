@@ -33,7 +33,7 @@ It requires `SFPROC_BIN` environment variable that must be on `PATH` environment
 write in this directory.
 
 ## Usage
-This application basically copies files from S3 bucket to another attaching some metadata and encrypting them with a Key Management Service (KMS) key if needed.
+This application basically copies files from S3 bucket to another attaching some metadata and encrypting them with a Key Management Service (KMS) key if is needed.
 
 ### To copy all files from bucket MY_BUCKET to the same bucket:
 ``` console
