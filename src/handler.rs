@@ -31,7 +31,7 @@ impl Handler {
         }
     }
 
-    pub async fn handle(&self, args: Cli) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn handle(&self, args: Cli) -> Result<(), String> {
         let endpoint = args.endpoint;
         let regex = args.regex;
         let kms_key = args.kms_key;
@@ -46,7 +46,12 @@ impl Handler {
             .send();
 
         let mut ack_files = Vec::new();
-        while let Some(resp) = stream.try_next().await? {
+
+        while let Some(resp) = stream
+            .try_next()
+            .await
+            .map_err(|err| err.to_string())? {
+
             for object in resp.contents().unwrap_or_default() {
                 let file_name = object.key().unwrap_or_default();
                 info!("Key ({}) has been acknowledged.", file_name);
@@ -64,8 +69,10 @@ impl Handler {
             .collect::<Vec<SettlementFile>>();
 
         for sf in filtered_files.into_iter() {
-            // TODO: Handle return here.
-            self.copy_object(&sf, &kms_key).await;
+            match self.copy_object(&sf, &kms_key).await {
+                Ok(_) => info!("Settlement File ({}) has successfully processed.", sf),
+                Err(err) => error!("Settlement File ({}) has not processed. Error: {}", sf, err)
+            }
         }
 
         Ok(())
@@ -127,7 +134,7 @@ impl Handler {
     }
 
     async fn copy_object(&self, sf: &SettlementFile, kms_key: &Option<String>) ->
-    Result<(), Box<dyn std::error::Error>> {
+    Result<(), String> {
         let source_file = format!("{}/{}", sf.bucket, sf.source_file.value());
         debug!("Source File ({})", source_file);
         info!("Copying Settlement File ({}).", sf);
@@ -145,11 +152,11 @@ impl Handler {
             .metadata(sf.parent_cid.name(), sf.parent_cid.value());
 
         let req = if sf.streamable.value().eq(true.to_string().as_str()) {
-            let kms_key = match kms_key {
-                // TODO: handle it properly later.
-                None => panic!("KMS not found for streamable file"),
-                Some(k) => k
-            };
+            if kms_key.is_none() {
+                return Err(format!("KMS not found for Streamable file ({})", sf));
+            }
+
+            let kms_key = kms_key.as_ref().unwrap();
 
             info!("Since file ({}) is streamable. It will be encrypted with KMS key ({}).", sf,
                 kms_key);
@@ -159,12 +166,14 @@ impl Handler {
             req
         };
 
-        let output = req.send().await?;
-        let output = match output.copy_object_result {
-            // TODO: handle it properly later.
-            None => String::from("error"),
-            Some(res) => res.e_tag.unwrap()
-        };
+        let output = req
+            .send()
+            .await
+            .map_err(|err| err.to_string())?;
+
+        if output.copy_object_result.is_none() {
+            return Err("Something went wrong copying the object. Use verbose mode (--verbose) for more details".to_string());
+        }
 
         Ok(())
     }

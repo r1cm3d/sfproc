@@ -8,18 +8,17 @@ use types::Cli;
 use clap::Parser;
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::Client;
-use std::error::Error;
 
 mod handler;
 mod types;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<(), String> {
     let args = Cli::parse();
 
     let log_level = match args.verbose {
         true => LevelFilter::Debug,
-        false => LevelFilter::Info
+        false => LevelFilter::Info,
     };
 
     SimpleLogger::new()
@@ -28,7 +27,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .unwrap();
 
     let region_provider = RegionProviderChain::default_provider().or_else("sa-east-1");
-    let config = aws_config::from_env().region(region_provider).load().await;
+    let config = aws_config::from_env()
+        .region(region_provider)
+        .load()
+        .await;
     let client = Client::new(&config);
     let handler = Handler::new(client);
 

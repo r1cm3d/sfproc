@@ -9,7 +9,7 @@ pub const DIR_PATTERN: &str = r".*/&";
 
 #[derive(Debug, Parser)]
 #[clap(name = "sfproc - settlement files processor")]
-#[clap(version = "0.0.1")]
+#[clap(version = "0.2.1")]
 #[clap(about = "A CLI application that is responsible to process settlement files.", long_about = None)]
 pub struct Cli {
     #[clap(short, long, required = true)]
