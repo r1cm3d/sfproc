@@ -9,7 +9,7 @@ pub const DIR_PATTERN: &str = r".*/&";
 
 #[derive(Debug, Parser)]
 #[clap(name = "sfproc - settlement files processor")]
-#[clap(version = "0.2.1")]
+#[clap(version = "0.2.2")]
 #[clap(about = "A CLI application that is responsible to process settlement files.", long_about = None)]
 pub struct Cli {
     #[clap(short, long, required = true)]
@@ -35,6 +35,11 @@ pub struct Cli {
     #[clap(short, long, action)]
     /// Enable DEBUG log mode.
     pub verbose: bool,
+
+    #[clap(short, long, action)]
+    /// Enable pretend mode. In the pretend mode, the files will not be copied. This option is
+    /// useful to validate the --regex option.
+    pub pretend: bool,
 }
 
 pub enum Metadata {

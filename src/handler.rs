@@ -37,6 +37,7 @@ impl Handler {
         let kms_key = args.kms_key;
         let bucket = args.bucket;
         let prefix = args.prefix;
+        let pretend = args.pretend;
 
         let mut stream = self.client.list_objects_v2()
             .bucket(&bucket)
@@ -60,11 +61,18 @@ impl Handler {
         }
 
         let filtered_files = ack_files.into_iter()
-            .filter(|f| {
-                self.filter(f, &regex)
+            .filter(|obj_key| {
+                self.filter(obj_key, &regex)
             })
-            .map(|f| {
-                self.to_settlement_file(&endpoint, &bucket, &f)
+            .map(|obj_key| {
+                self.to_settlement_file(&endpoint, &bucket, &obj_key)
+            })
+            .filter(|sf| {
+                if pretend {
+                   info!("Pretend mode is enable. Settlement File ({}) will not be copied.", sf)
+                }
+
+                !pretend
             })
             .collect::<Vec<SettlementFile>>();
 
