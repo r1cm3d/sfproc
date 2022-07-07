@@ -36,7 +36,7 @@ pub struct Cli {
     /// Enable DEBUG log mode.
     pub verbose: bool,
 
-    #[clap(short, long, action)]
+    #[clap(long, action)]
     /// Enable pretend mode. In the pretend mode, the files will not be copied. This option is
     /// useful to validate the --regex option.
     pub pretend: bool,

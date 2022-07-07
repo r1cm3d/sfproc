@@ -1,8 +1,6 @@
 # sfproc
 [![license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/r1cm3d/gk-yaml/blob/master/LICENSE)
 
-**TL;DR:**
-
 ## Prerequisites
 [![rust](https://img.shields.io/badge/rust-2021-orange?style=flat-square)](https://github.com/rust-lang/rust)
 ``` console
@@ -10,7 +8,6 @@ brew install rustup-init && rustup-init
 ```
 
 ## Table of Contents
-* [TL;DR](#ppsch)
 * [Prerequisites](#prerequisites)
 * [About](#about-the-project)
 * [Building](#building)
@@ -66,7 +63,7 @@ It will call `cargo test` aiming to run the basic unit tests.
 Help information will be displayed:
 
 ```console
-sfproc - settlement files processor 0.2.1
+sfproc - settlement files processor 0.2.2
 A CLI application that is responsible to process settlement files.
 
 USAGE:
@@ -80,6 +77,9 @@ OPTIONS:
                                  files
     -p, --prefix <PREFIX>        The prefix to be applied in the look up in order to avoid
                                  unnecessary requests
+        --pretend                Enable pretend mode. In the pretend mode, the files will not be
+                                 copied. This option is useful to validate the --regex option
     -r, --regex <REGEX>          The base regex pattern to look up into storage repository
     -v, --verbose                Enable DEBUG log mode
     -V, --version                Print version information
+```
