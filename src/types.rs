@@ -1,7 +1,7 @@
 use clap::Parser;
 use std::fmt;
 
-pub const FILE_SUFFIX: &str = "rep";
+pub const FILE_SUFFIX: &str = "";
 pub const EXTENSION_PATTERN: &str = r"\..{3}$";
 pub const TENANT_PATTERN: &str = r"(?i)^tn-[^/]+";
 pub const STREAMABLE_PATTERN: &str = r"(?i).*(baseii|t112|t120|t470|t464).*";
