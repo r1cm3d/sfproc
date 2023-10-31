@@ -37,6 +37,7 @@ impl Handler {
         let kms_key = args.kms_key;
         let bucket = args.bucket;
         let prefix = args.prefix;
+        let suffix = args.suffix.unwrap_or(self.file_suffix.to_string());
         let pretend = args.pretend;
 
         let mut stream = self.client.list_objects_v2()
@@ -65,7 +66,7 @@ impl Handler {
                 self.filter(obj_key, &regex)
             })
             .map(|obj_key| {
-                self.to_settlement_file(&endpoint, &bucket, &obj_key)
+                self.to_settlement_file(&endpoint, &bucket, &obj_key, &suffix)
             })
             .filter(|sf| {
                 if pretend {
@@ -119,7 +120,7 @@ impl Handler {
         return is_match;
     }
 
-    fn to_settlement_file(&self, endpoint: &str, bucket: &str, obj_key: &str) -> SettlementFile {
+    fn to_settlement_file(&self, endpoint: &str, bucket: &str, obj_key: &str, suffix: &str) -> SettlementFile {
         debug!("File to apply regex ({}).", obj_key);
         let ext = self.extension_pattern.find(&obj_key).unwrap().as_str();
         debug!("ext: ({}).", ext);
@@ -128,7 +129,7 @@ impl Handler {
         let streamable = self.streamable_pattern.is_match(&obj_key);
         debug!("streamable: ({}).", streamable);
         let new_name = obj_key.replace(ext, "");
-        let new_name = format!("{}{}{}", new_name, self.file_suffix, ext);
+        let new_name = format!("{}{}{}", new_name, suffix, ext);
 
         SettlementFile {
             bucket: bucket.to_string(),

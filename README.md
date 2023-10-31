@@ -63,7 +63,7 @@ It will call `cargo test` aiming to run the basic unit tests.
 Help information will be displayed:
 
 ```console
-sfproc - settlement files processor 0.2.2
+sfproc - settlement files processor 0.2.3
 A CLI application that is responsible to process settlement files.
 
 USAGE:
@@ -80,6 +80,7 @@ OPTIONS:
         --pretend                Enable pretend mode. In the pretend mode, the files will not be
                                  copied. This option is useful to validate the --regex option
     -r, --regex <REGEX>          The base regex pattern to look up into storage repository
+    -s, --suffix <SUFFIX>        The suffix to be applied in the end of the file name. This option
+                                 is DANGEROUS and might skip the integrity validation
     -v, --verbose                Enable DEBUG log mode
     -V, --version                Print version information
-```

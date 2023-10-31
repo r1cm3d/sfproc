@@ -9,7 +9,7 @@ pub const DIR_PATTERN: &str = r".*/&";
 
 #[derive(Debug, Parser)]
 #[clap(name = "sfproc - settlement files processor")]
-#[clap(version = "0.2.2")]
+#[clap(version = "0.2.3")]
 #[clap(about = "A CLI application that is responsible to process settlement files.", long_about = None)]
 pub struct Cli {
     #[clap(short, long, required = true)]
@@ -23,6 +23,10 @@ pub struct Cli {
     #[clap(short, long)]
     /// The prefix to be applied in the look up in order to avoid unnecessary requests.
     pub prefix: String,
+
+    #[clap(short, long)]
+    /// The suffix to be applied in the end of the file name. This option is DANGEROUS and might skip the integrity validation.
+    pub suffix: Option<String>,
 
     #[clap(short, long)]
     /// The base regex pattern to look up into storage repository.
